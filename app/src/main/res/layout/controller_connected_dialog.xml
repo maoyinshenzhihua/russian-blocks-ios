@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/btn_white_black_border"
+    android:padding="20dp">
+
+    <!-- 标题 -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="控制器已连接"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp" />
+
+    <!-- 内容 -->
+    <TextView
+        android:id="@+id/dialog_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="已检测到游戏控制器，可使用控制器进行游戏操作。\n\n按键映射：\n左移：←/X/L1/L2\n右移：→/Y/R1/R2\n下移：↓\n旋转：↑/A\n快速下落：B"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="20dp"
+        android:gravity="center" />
+
+    <!-- 关闭按钮 -->
+    <Button
+        android:id="@+id/close_btn"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:text="关闭"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:background="@drawable/btn_white_black_border" />
+
+</LinearLayout>

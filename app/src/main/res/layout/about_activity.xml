@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/yellow_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center">
+
+        <!-- 标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关于应用"
+            android:textSize="42sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="40dp" />
+
+        <!-- 卡片容器 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:padding="30dp"
+            android:gravity="center"
+            android:elevation="0dp"
+            android:layout_marginBottom="30dp">
+
+            <!-- 开发者信息 -->
+            <TextView
+                android:id="@+id/developer_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginBottom="30dp"
+                android:gravity="center" />
+
+            <!-- 制作初衷 -->
+            <TextView
+                android:id="@+id/purpose_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="40dp"
+                android:lineSpacingExtra="4dp"
+                android:letterSpacing="0"
+                android:textAlignment="center"
+                android:paddingHorizontal="10dp" />
+
+            <!-- 视频链接按钮 -->
+            <android.widget.Button
+                android:id="@+id/video_link_btn"
+                android:layout_width="280dp"
+                android:layout_height="65dp"
+                android:text="查看原视频"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:background="@drawable/btn_white_black_border"
+                android:elevation="0dp" />
+
+        </LinearLayout>
+
+        <!-- 底部装饰 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="❤️ 感谢游玩俄罗斯粑粑块 ❤️"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:alpha="0.8"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="40dp" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/yellow_bg">
+
+    <!-- 标题 -->
+    <TextView
+        android:id="@+id/settings_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="游戏设置"
+        android:textSize="48sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/settings_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.2" />
+
+    <!-- 设置选项容器 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/settings_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="40dp"
+        app:layout_constraintTop_toBottomOf="@+id/settings_title"
+        app:layout_constraintBottom_toTopOf="@+id/back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 动画设置 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/animation_setting_container"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:background="@drawable/btn_white_black_border"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/animation_setting_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="淡入淡出动画"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/animation_switch"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginStart="20dp" />
+
+            <android.widget.Switch
+                android:id="@+id/animation_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/black"
+                android:trackTint="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 音乐设置 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/music_setting_container"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:background="@drawable/btn_white_black_border"
+            app:layout_constraintTop_toBottomOf="@+id/animation_setting_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:id="@+id/music_setting_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="背景音乐"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/music_switch"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginStart="20dp" />
+
+            <android.widget.Switch
+                android:id="@+id/music_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/black"
+                android:trackTint="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 控制器支持设置 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/controller_setting_container"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:background="@drawable/btn_white_black_border"
+            app:layout_constraintTop_toBottomOf="@+id/music_setting_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:id="@+id/controller_setting_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="控制器支持"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/controller_switch"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginStart="20dp" />
+
+            <android.widget.Switch
+                android:id="@+id/controller_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/black"
+                android:trackTint="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 游戏音效设置 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/game_sound_setting_container"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:background="@drawable/btn_white_black_border"
+            app:layout_constraintTop_toBottomOf="@+id/controller_setting_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:id="@+id/game_sound_setting_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="游戏音效"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/game_sound_switch"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginStart="20dp" />
+
+            <android.widget.Switch
+                android:id="@+id/game_sound_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/black"
+                android:trackTint="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 小屏模式设置 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/small_screen_setting_container"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:background="@drawable/btn_white_black_border"
+            app:layout_constraintTop_toBottomOf="@+id/game_sound_setting_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:id="@+id/small_screen_setting_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="小屏模式"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/small_screen_switch"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginStart="20dp" />
+
+            <android.widget.Switch
+                android:id="@+id/small_screen_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/black"
+                android:trackTint="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 返回按钮 -->
+    <android.widget.Button
+        android:id="@+id/back_button"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        android:text="返回主菜单"
+        android:textSize="22sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:background="@drawable/btn_white_black_border"
+        android:elevation="0dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

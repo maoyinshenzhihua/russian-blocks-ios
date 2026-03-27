@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/btn_white_black_border"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center">
+
+    <!-- 标题 -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="游戏结束"
+        android:textSize="28sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- 分数 -->
+    <TextView
+        android:id="@+id/dialog_score"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="得分: 0"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <!-- 游戏时长 -->
+    <TextView
+        android:id="@+id/dialog_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="游戏时长: 00:00"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:layout_marginBottom="25dp" />
+
+    <!-- 按钮组 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- 重新开始按钮 -->
+        <Button
+            android:id="@+id/restart_btn"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="重新开始"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:layout_marginBottom="12dp"
+            android:textAllCaps="false" />
+
+        <!-- 保存记录按钮 -->
+        <Button
+            android:id="@+id/save_btn"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="保存记录"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:layout_marginBottom="12dp"
+            android:textAllCaps="false" />
+
+        <!-- 返回主页按钮 -->
+        <Button
+            android:id="@+id/home_btn"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="返回主页"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+</LinearLayout>

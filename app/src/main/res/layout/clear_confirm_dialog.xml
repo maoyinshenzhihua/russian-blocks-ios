@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/btn_white_black_border"
+    android:padding="20dp"
+    android:layout_margin="20dp">
+
+    <!-- 标题 -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="确认清除"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp" />
+
+    <!-- 消息内容 -->
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="确定要清除所有游戏记录吗？此操作不可恢复。"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:maxWidth="300dp" />
+
+    <!-- 按钮容器 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="10dp">
+
+        <!-- 确认按钮 -->
+        <Button
+            android:id="@+id/confirm_btn"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:text="确定"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:layout_marginRight="15dp" />
+
+        <!-- 取消按钮 -->
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:text="取消"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border" />
+
+    </LinearLayout>
+
+</LinearLayout>

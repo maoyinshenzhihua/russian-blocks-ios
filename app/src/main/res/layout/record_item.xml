@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/white"
+    android:padding="12dp"
+    android:layout_marginBottom="2dp">
+
+    <!-- 排名 -->
+    <TextView
+        android:id="@+id/rank_text"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <!-- 分数 -->
+    <TextView
+        android:id="@+id/score_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="100"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <!-- 时长 -->
+    <TextView
+        android:id="@+id/time_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="01:30"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:gravity="center" />
+
+    <!-- 日期 -->
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="2026-01-19"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:gravity="center" />
+
+</LinearLayout>

@@ -1,0 +1,27 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.MyApplication" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/white</item>
+        <!-- Status bar text color (light status bar means dark text) -->
+        <item name="android:windowLightStatusBar">true</item>
+        
+        <!-- 全局按钮样式 -->
+        <item name="buttonStyle">@style/GameButton</item>
+    </style>
+    
+    <!-- 游戏按钮样式 -->
+    <style name="GameButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/btn_white_black_border</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_margin">0dp</item>
+    </style>
+    
+    <!-- No Action Bar theme for Splash Activity -->
+    <style name="Theme.MyApplication.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

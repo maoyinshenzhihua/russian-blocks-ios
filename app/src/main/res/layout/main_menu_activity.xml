@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/yellow_bg">
+
+    <!-- 标题区 -->
+    <TextView
+        android:id="@+id/app_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="俄罗斯粑粑块"
+        android:textSize="56sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.3" />
+
+    <!-- 功能按钮容器 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="40dp"
+        app:layout_constraintTop_toBottomOf="@+id/app_title"
+        app:layout_constraintBottom_toTopOf="@+id/copyright_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 开始游戏按钮 -->
+        <android.widget.Button
+            android:id="@+id/start_game_btn"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:text="开始游戏"
+            android:textSize="22sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:elevation="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- 游戏记录按钮 -->
+        <android.widget.Button
+            android:id="@+id/game_record_btn"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:text="游戏记录"
+            android:textSize="22sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:elevation="0dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/start_game_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- 游戏设置按钮 -->
+        <android.widget.Button
+            android:id="@+id/game_settings_btn"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:text="游戏设置"
+            android:textSize="22sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:elevation="0dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/game_record_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <!-- 应用关于按钮 -->
+        <android.widget.Button
+            android:id="@+id/about_btn"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:text="应用关于"
+            android:textSize="22sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:background="@drawable/btn_white_black_border"
+            android:elevation="0dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/game_settings_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 底部区 -->
+    <TextView
+        android:id="@+id/copyright_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="© 2026 俄罗斯粑粑块"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:alpha="0.7"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
