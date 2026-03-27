@@ -3,13 +3,13 @@ name: Build iOS App (With Signing)
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'ios/**'
       - '.github/workflows/ios-build-signed.yml'
   pull_request:
     branches:
-      - main
+      - master
     paths:
       - 'ios/**'
       - '.github/workflows/ios-build-signed.yml'
