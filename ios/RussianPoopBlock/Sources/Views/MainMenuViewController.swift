@@ -53,6 +53,10 @@ class MainMenuViewController: UIViewController {
         if GameSettings.shared.musicEnabled {
             MusicService.shared.startMusic()
         }
+
+        if GameSettings.shared.animationEnabled {
+            applyPresentAnimation()
+        }
     }
 
     private func setupUI() {
@@ -106,25 +110,46 @@ class MainMenuViewController: UIViewController {
         MusicService.shared.stopMusic()
         let gameVC = GameViewController()
         gameVC.modalPresentationStyle = .fullScreen
-        present(gameVC, animated: true)
+
+        if GameSettings.shared.animationEnabled {
+            TransitionHelper.shared.applyFadeTransition(to: gameVC, presenting: true)
+            present(gameVC, animated: false)
+        } else {
+            present(gameVC, animated: true)
+        }
     }
 
     @objc private func gameRecordTapped() {
         SoundManager.shared.playValidClickSound()
         let recordVC = GameRecordViewController()
-        navigationController?.pushViewController(recordVC, animated: true)
+
+        if GameSettings.shared.animationEnabled {
+            let transition = TransitionHelper.shared.createFadeTransition(isPresenting: true)
+            navigationController?.view.layer.add(transition, forKey: "fadeTransition")
+        }
+        navigationController?.pushViewController(recordVC, animated: false)
     }
 
     @objc private func gameSettingsTapped() {
         SoundManager.shared.playValidClickSound()
         let settingsVC = SettingsViewController()
-        navigationController?.pushViewController(settingsVC, animated: true)
+
+        if GameSettings.shared.animationEnabled {
+            let transition = TransitionHelper.shared.createFadeTransition(isPresenting: true)
+            navigationController?.view.layer.add(transition, forKey: "fadeTransition")
+        }
+        navigationController?.pushViewController(settingsVC, animated: false)
     }
 
     @objc private func aboutTapped() {
         SoundManager.shared.playValidClickSound()
         let aboutVC = AboutViewController()
-        navigationController?.pushViewController(aboutVC, animated: true)
+
+        if GameSettings.shared.animationEnabled {
+            let transition = TransitionHelper.shared.createFadeTransition(isPresenting: true)
+            navigationController?.view.layer.add(transition, forKey: "fadeTransition")
+        }
+        navigationController?.pushViewController(aboutVC, animated: false)
     }
 
     override func viewDidLayoutSubviews() {

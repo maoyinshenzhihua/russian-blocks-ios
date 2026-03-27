@@ -64,11 +64,18 @@ class SplashViewController: UIViewController {
         let navController = UINavigationController(rootViewController: mainMenuVC)
         navController.setNavigationBarHidden(true, animated: false)
 
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
+        if GameSettings.shared.animationEnabled {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                let transition = TransitionHelper.shared.createFadeTransition(isPresenting: true)
+                window.layer.add(transition, forKey: "fadeTransition")
                 window.rootViewController = navController
-            })
+            }
+        } else {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController = navController
+            }
         }
     }
 }
@@ -83,7 +90,7 @@ extension UIColor {
 
         let r = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
         let g = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
-        let b = CGFloat(rgb & 0x0000FF) / 255.0
+        let b = CGFloat((rgb & 0x0000FF) >> 16) / 255.0
 
         self.init(red: r, green: g, blue: b, alpha: 1.0)
     }

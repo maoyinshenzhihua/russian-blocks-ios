@@ -432,7 +432,16 @@ class GameViewController: UIViewController {
         SoundManager.shared.playValidClickSound()
         gameEngine.stopGame()
         MusicService.shared.startMusic()
-        dismiss(animated: true)
+
+        if GameSettings.shared.animationEnabled {
+            UIView.animate(withDuration: 1.0, animations: {
+                self.view.alpha = 0
+            }, completion: { _ in
+                self.dismiss(animated: false)
+            })
+        } else {
+            dismiss(animated: true)
+        }
     }
 
     @objc private func rotateTapped() {
@@ -498,7 +507,16 @@ class GameViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "返回主菜单", style: .cancel) { [weak self] _ in
             SoundManager.shared.playValidClickSound()
             MusicService.shared.startMusic()
-            self?.dismiss(animated: true)
+
+            if GameSettings.shared.animationEnabled {
+                UIView.animate(withDuration: 1.0, animations: {
+                    self?.view.alpha = 0
+                }, completion: { _ in
+                    self?.dismiss(animated: false)
+                })
+            } else {
+                self?.dismiss(animated: true)
+            }
         })
 
         present(alert, animated: true)
