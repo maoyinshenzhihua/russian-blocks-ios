@@ -60,9 +60,10 @@ jobs:
       - name: Fix Project Format Version
         working-directory: ./ios/RussianPoopBlock
         run: |
-          sed -i '' 's/format = 77;/format = 56;/g' RussianPoopBlock.xcodeproj/project.pbxproj
-          sed -i '' 's/projectFormatVersion = "77";/projectFormatVersion = "56";/g' RussianPoopBlock.xcodeproj/project.pbxproj
-          grep -n "format" RussianPoopBlock.xcodeproj/project.pbxproj | head -5
+          ls -la RussianPoopBlock.xcodeproj/
+          grep -r "77" RussianPoopBlock.xcodeproj/
+          find . -name "*.pbxproj" -exec sed -i '' 's/77/56/g' {} \;
+          grep -r "format" RussianPoopBlock.xcodeproj/ || echo "No format found"
 
       - name: Setup App Store Connect API Key
         env:
