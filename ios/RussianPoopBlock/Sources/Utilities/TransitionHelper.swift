@@ -58,7 +58,6 @@ class TransitionHelper {
         let transition = CATransition()
         transition.duration = fadeDuration
         transition.type = .fade
-        transition.subtype = isPresenting ? .fromAlpha : .toAlpha
         transition.timingFunction = CAMediaTimingFunction(name: isPresenting ? .easeIn : .easeOut)
         return transition
     }
