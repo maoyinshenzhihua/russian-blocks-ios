@@ -127,6 +127,7 @@ jobs:
             IPHONEOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
 
       - name: Create Output Directory
+        working-directory: ./ios/RussianPoopBlock
         run: mkdir -p output
 
       - name: Export IPA (Signed)
@@ -138,23 +139,25 @@ jobs:
           echo "=== Exporting Signed IPA ==="
           xcodebuild -exportArchive \
             -archivePath ./build/RussianPoopBlock.xcarchive \
-            -exportPath ../output \
-            -exportOptionsPlist ../ExportOptions.plist \
+            -exportPath ./output \
+            -exportOptionsPlist ./ExportOptions.plist \
             PRODUCT_BUNDLE_IDENTIFIER=${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
-          ls -la ../output/
+          ls -la ./output/
 
       - name: Export App (Unsigned)
         if: env.CERT_IMPORTED != 'true'
+        working-directory: ./ios/RussianPoopBlock
         run: |
           echo "=== Creating Unsigned App Package ==="
-          cp -r ./build/RussianPoopBlock.xcarchive/Products/Applications/*.app ../output/
-          ls -la ../output/
+          cp -r ./build/RussianPoopBlock.xcarchive/Products/Applications/*.app ./output/
+          ls -la ./output/
 
       - name: Create IPA from Unsigned App
         if: env.CERT_IMPORTED != 'true'
+        working-directory: ./ios/RussianPoopBlock
         run: |
           echo "=== Creating Unsigned IPA ==="
-          cd ../output
+          cd output
           APP_NAME=$(ls *.app 2>/dev/null | head -1)
           if [ -n "$APP_NAME" ]; then
             mkdir -p Payload
