@@ -1,4 +1,5 @@
 import UIKit
+import GameController
 
 class GameViewController: UIViewController {
 
@@ -11,6 +12,8 @@ class GameViewController: UIViewController {
     private var nextBlockCells: [[UIImageView]] = []
 
     private var highlightedButton: UIButton?
+    private var isControllerConnected = false
+    private var isControllerEnabled = false
 
     private let scoreLabel: UILabel = {
         let label = UILabel()
@@ -80,6 +83,7 @@ class GameViewController: UIViewController {
         setupUI()
         setupGameEngine()
         setupActions()
+        setupGamepad()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -241,6 +245,123 @@ class GameViewController: UIViewController {
         fastDropBtn.addTarget(self, action: #selector(fastDropTapped), for: .touchUpInside)
     }
 
+    private func setupGamepad() {
+        isControllerEnabled = GameSettings.shared.controllerEnabled
+
+        if isControllerEnabled {
+            updateButtonTextWithControllerMapping()
+            checkGamepadConnection()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(gamepadDidConnect),
+                name: .GCControllerDidConnect,
+                object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(gamepadDidDisconnect),
+                name: .GCControllerDidDisconnect,
+                object: nil
+            )
+        }
+    }
+
+    @objc private func gamepadDidConnect(_ notification: Notification) {
+        guard let controller = notification.object as? GCController else { return }
+
+        if !isControllerConnected {
+            isControllerConnected = true
+            showControllerConnectedDialog()
+        }
+
+        setupControllerInputs(controller)
+    }
+
+    @objc private func gamepadDidDisconnect(_ notification: Notification) {
+        isControllerConnected = false
+    }
+
+    private func checkGamepadConnection() {
+        if let controller = GCController.controllers().first {
+            isControllerConnected = true
+            setupControllerInputs(controller)
+        }
+    }
+
+    private func setupControllerInputs(_ controller: GCController) {
+        if let gamepad = controller.extendedGamepad {
+            gamepad.buttonA.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rotateTapped() }
+            }
+            gamepad.buttonB.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.fastDropTapped() }
+            }
+            gamepad.buttonX.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.leftTapped() }
+            }
+            gamepad.buttonY.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rightTapped() }
+            }
+            gamepad.dpad.left.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.leftTapped() }
+            }
+            gamepad.dpad.right.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rightTapped() }
+            }
+            gamepad.dpad.down.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.downTapped() }
+            }
+            gamepad.dpad.up.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rotateTapped() }
+            }
+            gamepad.leftShoulder.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.leftTapped() }
+            }
+            gamepad.rightShoulder.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rightTapped() }
+            }
+        }
+
+        if let microGamepad = controller.microGamepad {
+            microGamepad.buttonA.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rotateTapped() }
+            }
+            microGamepad.buttonX.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.fastDropTapped() }
+            }
+            microGamepad.dpad.up.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rotateTapped() }
+            }
+            microGamepad.dpad.down.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.downTapped() }
+            }
+            microGamepad.dpad.left.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.leftTapped() }
+            }
+            microGamepad.dpad.right.pressedChangedHandler = { [weak self] _, _, pressed in
+                if pressed { self?.rightTapped() }
+            }
+        }
+    }
+
+    private func updateButtonTextWithControllerMapping() {
+        rotateBtn.setTitle("旋转\n(↑/A)", for: .normal)
+        leftBtn.setTitle("左移\n(←/X)", for: .normal)
+        rightBtn.setTitle("右移\n(→/Y)", for: .normal)
+        downBtn.setTitle("下移\n(↓)", for: .normal)
+        fastDropBtn.setTitle("快速下落\n(B)", for: .normal)
+    }
+
+    private func showControllerConnectedDialog() {
+        let alert = UIAlertController(
+            title: "手柄已连接",
+            message: "游戏手柄已连接，可以使用手柄操控游戏。\n\n按键说明：\n↑/A键：旋转\n↓键：下移\n←/X/L1/L2：左移\n→/Y/R1/R2：右移\nB/X键：快速下落",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
+        present(alert, animated: true)
+    }
+
     private func renderGameGrid() {
         for row in 0..<gridHeight {
             for col in 0..<gridWidth {
@@ -393,5 +514,9 @@ class GameViewController: UIViewController {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
         return formatter.string(from: Date())
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
