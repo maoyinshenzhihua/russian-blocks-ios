@@ -60,10 +60,7 @@ jobs:
       - name: Fix Project Format Version
         working-directory: ./ios/RussianPoopBlock
         run: |
-          ls -la RussianPoopBlock.xcodeproj/
-          grep -r "77" RussianPoopBlock.xcodeproj/
           find . -name "*.pbxproj" -exec sed -i '' 's/77/56/g' {} \;
-          grep -r "format" RussianPoopBlock.xcodeproj/ || echo "No format found"
 
       - name: Setup App Store Connect API Key
         env:
@@ -74,12 +71,13 @@ jobs:
           if [ -n "$APP_STORE_CONNECT_API_KEY_CONTENT" ]; then
             mkdir -p ~/private_keys
             echo "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode > ~/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-            ls -la ~/private_keys/
+            echo "App Store Connect API Key installed"
           else
-            echo "App Store Connect API Key not provided, skipping..."
+            echo "App Store Connect API Key not provided"
           fi
 
       - name: Import Certificates
+        id: import-certs
         env:
           P12_CERTIFICATE: ${{ secrets.P12_CERTIFICATE }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -92,8 +90,10 @@ jobs:
             security import certificate.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k build-agent.keychain
             security set-key-partition-list -S apple-tool:,apple:,codesign: -k "" build-agent.keychain
             security list-keychain -d user -s build-agent.keychain
+            echo "CERT_IMPORTED=true" >> $GITHUB_ENV
           else
-            echo "P12 Certificate not provided, skipping..."
+            echo "CERT_IMPORTED=false" >> $GITHUB_ENV
+            echo "P12 Certificate not provided, will create unsigned build"
           fi
 
       - name: Setup Provisioning Profile
@@ -104,74 +104,74 @@ jobs:
             echo "$PROVISIONING_PROFILE" | base64 --decode > Profile.mobileprovision
             mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
             cp Profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
-          else
-            echo "Provisioning Profile not provided, skipping..."
+            echo "Provisioning Profile installed"
           fi
 
-      - name: List Available Code Signing Identities
-        run: |
-          echo "=== Available Code Signing Identities ==="
-          security find-identity -v -p codesigning || true
-          echo ""
-          echo "=== Provisioning Profiles ==="
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
-
-      - name: Build iOS App (Debug)
+      - name: Build iOS App (Archive)
         working-directory: ./ios/RussianPoopBlock
         env:
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          CODE_SIGN_STYLE: ${{ vars.CODE_SIGN_STYLE || 'Automatic' }}
           PRODUCT_BUNDLE_IDENTIFIER: ${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
           DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM || '' }}
-          CODE_SIGN_IDENTITY: ${{ vars.CODE_SIGN_IDENTITY || '-' }}
         run: |
-          echo "=== Building Debug Configuration ==="
+          echo "=== Building for Archive ==="
           xcodebuild -project RussianPoopBlock.xcodeproj \
             -scheme ${{ env.SCHEME }} \
-            -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
-            build \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            archive \
+            -archivePath ./build/RussianPoopBlock \
             CODE_SIGN_IDENTITY="${{ vars.CODE_SIGN_IDENTITY || '-' }}" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=${{ env.CERT_IMPORTED }} \
+            CODE_SIGNING_ALLOWED=${{ env.CERT_IMPORTED }} \
+            DEVELOPMENT_TEAM="${{ vars.DEVELOPMENT_TEAM || '' }}" \
             IPHONEOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
-
-      - name: Find Built Products
-        id: find-built
-        run: |
-          BUILD_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d 2>/dev/null | head -1)
-          echo "Found app at: $BUILD_PATH"
-          echo "app_path=$BUILD_PATH" >> $GITHUB_OUTPUT
 
       - name: Create Output Directory
         run: mkdir -p output
 
-      - name: Copy Built App
+      - name: Export IPA (Signed)
+        if: env.CERT_IMPORTED == 'true'
+        working-directory: ./ios/RussianPoopBlock
+        env:
+          PRODUCT_BUNDLE_IDENTIFIER: ${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
         run: |
-          if [ -n "${{ steps.find-built.outputs.app_path }}" ]; then
-            cp -r "${{ steps.find-built.outputs.app_path }}" output/
-            ls -la output/
-          else
-            echo "No built app found"
-          fi
+          echo "=== Exporting Signed IPA ==="
+          xcodebuild -exportArchive \
+            -archivePath ./build/RussianPoopBlock.xcarchive \
+            -exportPath ../output \
+            -exportOptionsPlist ../ExportOptions.plist \
+            PRODUCT_BUNDLE_IDENTIFIER=${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
+          ls -la ../output/
 
-      - name: Create ZIP Archive
+      - name: Export App (Unsigned)
+        if: env.CERT_IMPORTED != 'true'
+        working-directory: ./ios/RussianPoopBlock
         run: |
-          if [ -d "output" ] && [ "$(ls -A output/)" ]; then
-            cd output
-            zip -r ../output/RussianPoopBlock-${{ github.run_number }}.zip *.app || true
+          echo "=== Creating Unsigned App Package ==="
+          cp -r ./build/RussianPoopBlock.xcarchive/Products/Applications/*.app ../output/
+          ls -la ../output/
+
+      - name: Create IPA from Unsigned App
+        if: env.CERT_IMPORTED != 'true'
+        run: |
+          echo "=== Creating Unsigned IPA ==="
+          cd output
+          if [ -d "*.app" ]; then
+            APP_NAME=$(ls *.app | head -1)
+            mkdir -p Payload
+            cp -r "$APP_NAME" Payload/
+            zip -r ../output/RussianPoopBlock-${{ github.run_number }}.ipa Payload/
+            rm -rf Payload
+            rm -rf "$APP_NAME"
             cd ..
-            ls -la output/
-          else
-            echo "No output to archive"
           fi
+          ls -la output/
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RussianPoopBlock-iOS-${{ github.run_number }}
-          path: output/RussianPoopBlock-${{ github.run_number }}.zip
+          path: output/RussianPoopBlock-${{ github.run_number }}.ipa
           retention-days: 30
 
       - name: Build Summary
@@ -181,7 +181,8 @@ jobs:
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | Success |" >> $GITHUB_STEP_SUMMARY
+          echo "| Artifact | [Download IPA](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signed | ${{ env.CERT_IMPORTED }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Failure Summary
         if: failure()
