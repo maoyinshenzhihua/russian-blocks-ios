@@ -2,12 +2,14 @@ name: Build iOS App (With Signing)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'ios/**'
       - '.github/workflows/ios-build-signed.yml'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'ios/**'
       - '.github/workflows/ios-build-signed.yml'
@@ -37,7 +39,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Verify macOS Version
-        run: sw_vers && xcodebuild -version
+        run: |
+          sw_vers
+          xcodebuild -version
 
       - name: Install XcodeGen
         run: |
@@ -53,7 +57,7 @@ jobs:
         working-directory: ./ios/RussianPoopBlock
         run: xcodegen generate
 
-      - name: Setup App Store Connect API Key (Recommended)
+      - name: Setup App Store Connect API Key
         if: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT != '' }}
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -64,7 +68,7 @@ jobs:
           echo "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode > ~/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
           ls -la ~/private_keys/
 
-      - name: Import Certificates (Alternative: P12 Certificate)
+      - name: Import Certificates
         if: ${{ secrets.P12_CERTIFICATE != '' && secrets.P12_PASSWORD != '' }}
         env:
           P12_CERTIFICATE: ${{ secrets.P12_CERTIFICATE }}
@@ -171,7 +175,7 @@ jobs:
           path: output/RussianPoopBlock-${{ github.run_number }}.zip
           retention-days: 30
 
-      - name: Generate IPA (Ad Hoc)
+      - name: Generate IPA
         if: ${{ steps.find-built.outputs.app_path != '' && secrets.PROVISIONING_PROFILE != '' }}
         working-directory: ./output
         run: |
@@ -182,25 +186,17 @@ jobs:
 
       - name: Build Summary
         run: |
-          echo "## ✅ iOS Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## iOS Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build Type | ${{ github.event.inputs.build_type || 'debug' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Status | Success |" >> $GITHUB_STEP_SUMMARY
-          echo "| Artifact | [Download ZIP](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download the artifact ZIP file" >> $GITHUB_STEP_SUMMARY
-          echo "2. Unzip and locate the \`.app\` bundle" >> $GITHUB_STEP_SUMMARY
-          echo "3. For simulator testing: Drag \`.app\` to Xcode simulator" >> $GITHUB_STEP_SUMMARY
-          echo "4. For real device: Sign with your Apple Developer certificate" >> $GITHUB_STEP_SUMMARY
 
       - name: Failure Summary
         if: failure()
         run: |
-          echo "## ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Failed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Please check the build logs for details." >> $GITHUB_STEP_SUMMARY
