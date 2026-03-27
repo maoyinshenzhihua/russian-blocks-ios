@@ -145,7 +145,6 @@ jobs:
 
       - name: Export App (Unsigned)
         if: env.CERT_IMPORTED != 'true'
-        working-directory: ./ios/RussianPoopBlock
         run: |
           echo "=== Creating Unsigned App Package ==="
           cp -r ./build/RussianPoopBlock.xcarchive/Products/Applications/*.app ../output/
@@ -155,16 +154,16 @@ jobs:
         if: env.CERT_IMPORTED != 'true'
         run: |
           echo "=== Creating Unsigned IPA ==="
-          cd output
-          if [ -d "*.app" ]; then
-            APP_NAME=$(ls *.app | head -1)
+          cd ../output
+          APP_NAME=$(ls *.app 2>/dev/null | head -1)
+          if [ -n "$APP_NAME" ]; then
             mkdir -p Payload
             cp -r "$APP_NAME" Payload/
             zip -r ../output/RussianPoopBlock-${{ github.run_number }}.ipa Payload/
             rm -rf Payload
             rm -rf "$APP_NAME"
-            cd ..
           fi
+          cd ..
           ls -la output/
 
       - name: Upload Build Artifact
