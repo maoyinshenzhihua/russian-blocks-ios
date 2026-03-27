@@ -54,7 +54,7 @@ jobs:
         run: xcodegen generate
 
       - name: Setup App Store Connect API Key (Recommended)
-        if: env.APP_STORE_CONNECT_API_KEY_CONTENT != ''
+        if: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT != '' }}
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
@@ -65,7 +65,7 @@ jobs:
           ls -la ~/private_keys/
 
       - name: Import Certificates (Alternative: P12 Certificate)
-        if: env.P12_CERTIFICATE != '' && env.P12_PASSWORD != ''
+        if: ${{ secrets.P12_CERTIFICATE != '' && secrets.P12_PASSWORD != '' }}
         env:
           P12_CERTIFICATE: ${{ secrets.P12_CERTIFICATE }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -79,7 +79,7 @@ jobs:
           security list-keychain -d user -s build-agent.keychain
 
       - name: Setup Provisioning Profile
-        if: env.PROVISIONING_PROFILE != ''
+        if: ${{ secrets.PROVISIONING_PROFILE != '' }}
         env:
           PROVISIONING_PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
         run: |
@@ -96,7 +96,7 @@ jobs:
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build iOS App (Debug)
-        if: github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == ''
+        if: ${{ github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == '' }}
         working-directory: ./ios/RussianPoopBlock
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -118,7 +118,7 @@ jobs:
             IPHONEOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
 
       - name: Build iOS App (Release)
-        if: github.event.inputs.build_type == 'release'
+        if: ${{ github.event.inputs.build_type == 'release' }}
         working-directory: ./ios/RussianPoopBlock
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -150,13 +150,13 @@ jobs:
         run: mkdir -p output
 
       - name: Copy Built App
-        if: steps.find-built.outputs.app_path != ''
+        if: ${{ steps.find-built.outputs.app_path != '' }}
         run: |
           cp -r "${{ steps.find-built.outputs.app_path }}" output/
           ls -la output/
 
       - name: Create ZIP Archive
-        if: steps.find-built.outputs.app_path != ''
+        if: ${{ steps.find-built.outputs.app_path != '' }}
         run: |
           cd output
           zip -r ../output/RussianPoopBlock-${{ github.run_number }}.zip *.app
@@ -164,7 +164,7 @@ jobs:
           ls -la output/
 
       - name: Upload Build Artifact
-        if: steps.find-built.outputs.app_path != ''
+        if: ${{ steps.find-built.outputs.app_path != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: RussianPoopBlock-iOS-${{ github.run_number }}
@@ -172,7 +172,7 @@ jobs:
           retention-days: 30
 
       - name: Generate IPA (Ad Hoc)
-        if: steps.find-built.outputs.app_path != '' && env.PROVISIONING_PROFILE != ''
+        if: ${{ steps.find-built.outputs.app_path != '' && secrets.PROVISIONING_PROFILE != '' }}
         working-directory: ./output
         run: |
           xcrun altool --validate-app -f RussianPoopBlock-${{ github.run_number }}.zip \
@@ -194,8 +194,8 @@ jobs:
           echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "1. Download the artifact ZIP file" >> $GITHUB_STEP_SUMMARY
-          echo "2. Unzip and locate the `.app` bundle" >> $GITHUB_STEP_SUMMARY
-          echo "3. For simulator testing: Drag `.app` to Xcode simulator" >> $GITHUB_STEP_SUMMARY
+          echo "2. Unzip and locate the \`.app\` bundle" >> $GITHUB_STEP_SUMMARY
+          echo "3. For simulator testing: Drag \`.app\` to Xcode simulator" >> $GITHUB_STEP_SUMMARY
           echo "4. For real device: Sign with your Apple Developer certificate" >> $GITHUB_STEP_SUMMARY
 
       - name: Failure Summary
