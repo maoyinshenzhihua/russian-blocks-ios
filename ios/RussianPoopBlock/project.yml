@@ -2,7 +2,7 @@ name: RussianPoopBlock
 options:
   bundleIdPrefix: com.poopblock
   deploymentTarget:
-    iOS: "11.0"
+    iOS: "13.0"
   xcodeVersion: "14.0"
   developmentRegion: en
   createIntermediateGroups: true
