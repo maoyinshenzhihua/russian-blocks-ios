@@ -157,16 +157,15 @@ jobs:
         working-directory: ./ios/RussianPoopBlock
         run: |
           echo "=== Creating Unsigned IPA ==="
-          cd output
-          APP_NAME=$(ls *.app 2>/dev/null | head -1)
-          if [ -n "$APP_NAME" ]; then
+          ls -la output/
+          APP_PATH=$(find output -name "*.app" -type d | head -1)
+          echo "Found app: $APP_PATH"
+          if [ -n "$APP_PATH" ]; then
             mkdir -p Payload
-            cp -r "$APP_NAME" Payload/
-            zip -r ../output/RussianPoopBlock-${{ github.run_number }}.ipa Payload/
+            cp -r "$APP_PATH" Payload/RussianPoopBlock.app
+            zip -r output/RussianPoopBlock-${{ github.run_number }}.ipa Payload
             rm -rf Payload
-            rm -rf "$APP_NAME"
           fi
-          cd ..
           ls -la output/
 
       - name: Upload Build Artifact
