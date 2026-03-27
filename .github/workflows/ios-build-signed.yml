@@ -113,7 +113,7 @@ jobs:
             cd ./output
             mkdir -p Payload
             cp -r *.app Payload/
-            zip -r ../RussianPoopBlock-${{ github.run_number }}.ipa Payload
+            zip -r ./RussianPoopBlock-${{ github.run_number }}.ipa Payload
             rm -rf Payload
             rm -rf *.app
             cd ..
