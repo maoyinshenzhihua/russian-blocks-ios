@@ -14,15 +14,6 @@ on:
       - 'ios/**'
       - '.github/workflows/ios-build-signed.yml'
   workflow_dispatch:
-    inputs:
-      build_type:
-        description: 'Build Type'
-        required: true
-        default: 'debug'
-        type: choice
-        options:
-          - debug
-          - release
 
 env:
   XCODE_VERSION: '15.0'
@@ -62,20 +53,6 @@ jobs:
         run: |
           find . -name "*.pbxproj" -exec sed -i '' 's/77/56/g' {} \;
 
-      - name: Setup App Store Connect API Key
-        env:
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-        run: |
-          if [ -n "$APP_STORE_CONNECT_API_KEY_CONTENT" ]; then
-            mkdir -p ~/private_keys
-            echo "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode > ~/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-            echo "App Store Connect API Key installed"
-          else
-            echo "App Store Connect API Key not provided"
-          fi
-
       - name: Import Certificates
         id: import-certs
         env:
@@ -93,7 +70,6 @@ jobs:
             echo "CERT_IMPORTED=true" >> $GITHUB_ENV
           else
             echo "CERT_IMPORTED=false" >> $GITHUB_ENV
-            echo "P12 Certificate not provided, will create unsigned build"
           fi
 
       - name: Setup Provisioning Profile
@@ -104,75 +80,53 @@ jobs:
             echo "$PROVISIONING_PROFILE" | base64 --decode > Profile.mobileprovision
             mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
             cp Profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
-            echo "Provisioning Profile installed"
           fi
 
-      - name: Build iOS App (Archive)
+      - name: Build iOS App
         working-directory: ./ios/RussianPoopBlock
         env:
           PRODUCT_BUNDLE_IDENTIFIER: ${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
           DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM || '' }}
         run: |
-          echo "=== Building for Archive ==="
+          echo "=== Building ==="
           xcodebuild -project RussianPoopBlock.xcodeproj \
             -scheme ${{ env.SCHEME }} \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            archive \
-            -archivePath ./build/RussianPoopBlock \
+            build \
             CODE_SIGN_IDENTITY="${{ vars.CODE_SIGN_IDENTITY || '-' }}" \
             CODE_SIGNING_REQUIRED=${{ env.CERT_IMPORTED }} \
             CODE_SIGNING_ALLOWED=${{ env.CERT_IMPORTED }} \
             DEVELOPMENT_TEAM="${{ vars.DEVELOPMENT_TEAM || '' }}" \
             IPHONEOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
 
-      - name: Create Output Directory
-        working-directory: ./ios/RussianPoopBlock
-        run: mkdir -p output
-
-      - name: Export IPA (Signed)
-        if: env.CERT_IMPORTED == 'true'
-        working-directory: ./ios/RussianPoopBlock
-        env:
-          PRODUCT_BUNDLE_IDENTIFIER: ${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
-        run: |
-          echo "=== Exporting Signed IPA ==="
-          xcodebuild -exportArchive \
-            -archivePath ./build/RussianPoopBlock.xcarchive \
-            -exportPath ./output \
-            -exportOptionsPlist ./ExportOptions.plist \
-            PRODUCT_BUNDLE_IDENTIFIER=${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
-          ls -la ./output/
-
-      - name: Export App (Unsigned)
-        if: env.CERT_IMPORTED != 'true'
+      - name: Create IPA
         working-directory: ./ios/RussianPoopBlock
         run: |
-          echo "=== Creating Unsigned App Package ==="
-          cp -r ./build/RussianPoopBlock.xcarchive/Products/Applications/*.app ./output/
-          ls -la ./output/
-
-      - name: Create IPA from Unsigned App
-        if: env.CERT_IMPORTED != 'true'
-        working-directory: ./ios/RussianPoopBlock
-        run: |
-          echo "=== Creating Unsigned IPA ==="
-          ls -la output/
-          APP_PATH=$(find output -name "*.app" -type d | head -1)
-          echo "Found app: $APP_PATH"
+          echo "=== Creating IPA ==="
+          mkdir -p output
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "*.app" -type d 2>/dev/null | grep -v "PlugIns" | head -1)
+          echo "Found app at: $APP_PATH"
           if [ -n "$APP_PATH" ]; then
+            cp -r "$APP_PATH" ./output/
+            ls -la ./output/
+            cd ./output
             mkdir -p Payload
-            cp -r "$APP_PATH" Payload/RussianPoopBlock.app
-            zip -r output/RussianPoopBlock-${{ github.run_number }}.ipa Payload
+            cp -r *.app Payload/
+            zip -r ../RussianPoopBlock-${{ github.run_number }}.ipa Payload
             rm -rf Payload
+            rm -rf *.app
+            cd ..
+            ls -la output/
+          else
+            echo "No app found!"
           fi
-          ls -la output/
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RussianPoopBlock-iOS-${{ github.run_number }}
-          path: output/RussianPoopBlock-${{ github.run_number }}.ipa
+          path: ios/RussianPoopBlock/output/RussianPoopBlock-${{ github.run_number }}.ipa
           retention-days: 30
 
       - name: Build Summary
@@ -183,11 +137,8 @@ jobs:
           echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Artifact | [Download IPA](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Signed | ${{ env.CERT_IMPORTED }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Failure Summary
         if: failure()
         run: |
           echo "## Build Failed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Please check the build logs for details." >> $GITHUB_STEP_SUMMARY
