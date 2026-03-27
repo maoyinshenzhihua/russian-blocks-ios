@@ -58,49 +58,57 @@ jobs:
         run: xcodegen generate
 
       - name: Setup App Store Connect API Key
-        if: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT != '' }}
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
         run: |
-          mkdir -p ~/private_keys
-          echo "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode > ~/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
-          ls -la ~/private_keys/
+          if [ -n "$APP_STORE_CONNECT_API_KEY_CONTENT" ]; then
+            mkdir -p ~/private_keys
+            echo "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode > ~/private_keys/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
+            ls -la ~/private_keys/
+          else
+            echo "App Store Connect API Key not provided, skipping..."
+          fi
 
       - name: Import Certificates
-        if: ${{ secrets.P12_CERTIFICATE != '' && secrets.P12_PASSWORD != '' }}
         env:
           P12_CERTIFICATE: ${{ secrets.P12_CERTIFICATE }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
         run: |
-          echo "$P12_CERTIFICATE" | base64 --decode > certificate.p12
-          security create-keychain -p "" build-agent.keychain
-          security set-keychain-settings build-agent.keychain
-          security unlock-keychain -p "" build-agent.keychain
-          security import certificate.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k build-agent.keychain
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -k "" build-agent.keychain
-          security list-keychain -d user -s build-agent.keychain
+          if [ -n "$P12_CERTIFICATE" ] && [ -n "$P12_PASSWORD" ]; then
+            echo "$P12_CERTIFICATE" | base64 --decode > certificate.p12
+            security create-keychain -p "" build-agent.keychain
+            security set-keychain-settings build-agent.keychain
+            security unlock-keychain -p "" build-agent.keychain
+            security import certificate.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k build-agent.keychain
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -k "" build-agent.keychain
+            security list-keychain -d user -s build-agent.keychain
+          else
+            echo "P12 Certificate not provided, skipping..."
+          fi
 
       - name: Setup Provisioning Profile
-        if: ${{ secrets.PROVISIONING_PROFILE != '' }}
         env:
           PROVISIONING_PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
         run: |
-          echo "$PROVISIONING_PROFILE" | base64 --decode > Profile.mobileprovision
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp Profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          if [ -n "$PROVISIONING_PROFILE" ]; then
+            echo "$PROVISIONING_PROFILE" | base64 --decode > Profile.mobileprovision
+            mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+            cp Profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          else
+            echo "Provisioning Profile not provided, skipping..."
+          fi
 
       - name: List Available Code Signing Identities
         run: |
           echo "=== Available Code Signing Identities ==="
-          security find-identity -v -p codesigning
+          security find-identity -v -p codesigning || true
           echo ""
           echo "=== Provisioning Profiles ==="
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
 
       - name: Build iOS App (Debug)
-        if: ${{ github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == '' }}
         working-directory: ./ios/RussianPoopBlock
         env:
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
@@ -121,28 +129,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
 
-      - name: Build iOS App (Release)
-        if: ${{ github.event.inputs.build_type == 'release' }}
-        working-directory: ./ios/RussianPoopBlock
-        env:
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          CODE_SIGN_STYLE: ${{ vars.CODE_SIGN_STYLE || 'Automatic' }}
-          PRODUCT_BUNDLE_IDENTIFIER: ${{ vars.BUNDLE_ID || env.BUNDLE_ID }}
-          DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM || '' }}
-          CODE_SIGN_IDENTITY: ${{ vars.CODE_SIGN_IDENTITY || '-' }}
-        run: |
-          echo "=== Building Release Configuration ==="
-          xcodebuild -project RussianPoopBlock.xcodeproj \
-            -scheme ${{ env.SCHEME }} \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            build \
-            CODE_SIGN_IDENTITY="${{ vars.CODE_SIGN_IDENTITY || '-' }}" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            IPHONEOS_DEPLOYMENT_TARGET=${{ env.IOS_DEPLOYMENT_TARGET }}
-
       - name: Find Built Products
         id: find-built
         run: |
@@ -154,35 +140,31 @@ jobs:
         run: mkdir -p output
 
       - name: Copy Built App
-        if: ${{ steps.find-built.outputs.app_path != '' }}
         run: |
-          cp -r "${{ steps.find-built.outputs.app_path }}" output/
-          ls -la output/
+          if [ -n "${{ steps.find-built.outputs.app_path }}" ]; then
+            cp -r "${{ steps.find-built.outputs.app_path }}" output/
+            ls -la output/
+          else
+            echo "No built app found"
+          fi
 
       - name: Create ZIP Archive
-        if: ${{ steps.find-built.outputs.app_path != '' }}
         run: |
-          cd output
-          zip -r ../output/RussianPoopBlock-${{ github.run_number }}.zip *.app
-          cd ..
-          ls -la output/
+          if [ -d "output" ] && [ "$(ls -A output/)" ]; then
+            cd output
+            zip -r ../output/RussianPoopBlock-${{ github.run_number }}.zip *.app || true
+            cd ..
+            ls -la output/
+          else
+            echo "No output to archive"
+          fi
 
       - name: Upload Build Artifact
-        if: ${{ steps.find-built.outputs.app_path != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: RussianPoopBlock-iOS-${{ github.run_number }}
           path: output/RussianPoopBlock-${{ github.run_number }}.zip
           retention-days: 30
-
-      - name: Generate IPA
-        if: ${{ steps.find-built.outputs.app_path != '' && secrets.PROVISIONING_PROFILE != '' }}
-        working-directory: ./output
-        run: |
-          xcrun altool --validate-app -f RussianPoopBlock-${{ github.run_number }}.zip \
-            -t ios \
-            --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-            --apiIssuer ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }} || true
 
       - name: Build Summary
         run: |
@@ -191,7 +173,6 @@ jobs:
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build Type | ${{ github.event.inputs.build_type || 'debug' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Status | Success |" >> $GITHUB_STEP_SUMMARY
 
       - name: Failure Summary
