@@ -4,9 +4,7 @@ import UIKit
 class SoundManager {
     static let shared = SoundManager()
 
-    private var soundPool: AVAudioEngine?
-    private var playerNodes: [String: AVAudioPlayerNode] = [:]
-    private var audioBuffers: [String: AVAudioPCMBuffer] = [:]
+    private var players: [String: AVAudioPlayer] = [:]
     private var isSoundEnabled: Bool = true
 
     enum SoundType: String {
@@ -35,87 +33,30 @@ class SoundManager {
 
     func initSoundManager(soundEnabled: Bool) {
         isSoundEnabled = soundEnabled
-
-        soundPool = AVAudioEngine()
-
-        guard let engine = soundPool else { return }
-
-        do {
-            try engine.start()
-        } catch {
-            print("Failed to start audio engine: \(error)")
-        }
-    }
-
-    func preloadSound(_ soundType: SoundType) {
-        guard let url = Bundle.main.url(forResource: soundType.rawValue, withExtension: "mp3"),
-              let file = try? AVAudioFile(forReading: url) else {
-            return
-        }
-
-        let frameCount = AVAudioFrameCount(file.length)
-        guard let buffer = try? AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: frameCount) else {
-            return
-        }
-
-        do {
-            try file.read(into: buffer)
-        } catch {
-            print("Failed to read audio file: \(error)")
-            return
-        }
-
-        audioBuffers[soundType.rawValue] = buffer
-
-        let playerNode = AVAudioPlayerNode()
-        soundPool?.attach(playerNode)
-        soundPool?.connect(playerNode, to: soundPool!.mainMixerNode, format: buffer.format)
-        playerNodes[soundType.rawValue] = playerNode
     }
 
     func playSound(_ soundType: SoundType) {
         guard isSoundEnabled else { return }
-        guard let buffer = audioBuffers[soundType.rawValue],
-              let playerNode = playerNodes[soundType.rawValue] else {
-            preloadAndPlay(soundType)
+
+        if let player = players[soundType.rawValue] {
+            player.currentTime = 0
+            player.play()
             return
         }
 
-        if playerNode.isPlaying {
-            playerNode.stop()
-        }
-
-        playerNode.scheduleBuffer(buffer, at: nil, options: [], completionHandler: nil)
-        playerNode.play()
-    }
-
-    private func preloadAndPlay(_ soundType: SoundType) {
-        guard let url = Bundle.main.url(forResource: soundType.rawValue, withExtension: "mp3"),
-              let file = try? AVAudioFile(forReading: url) else {
-            return
-        }
-
-        let format = file.processingFormat
-        let frameCount = AVAudioFrameCount(file.length)
-        guard let buffer = try? AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frameCount) else {
+        guard let url = Bundle.main.url(forResource: soundType.rawValue, withExtension: "mp3") else {
+            print("Sound file not found: \(soundType.rawValue)")
             return
         }
 
         do {
-            try file.read(into: buffer)
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.prepareToPlay()
+            player.play()
+            players[soundType.rawValue] = player
         } catch {
-            return
+            print("Failed to play sound: \(error)")
         }
-
-        audioBuffers[soundType.rawValue] = buffer
-
-        let playerNode = AVAudioPlayerNode()
-        soundPool?.attach(playerNode)
-        soundPool?.connect(playerNode, to: soundPool!.mainMixerNode, format: format)
-        playerNodes[soundType.rawValue] = playerNode
-
-        playerNode.scheduleBuffer(buffer, at: nil, options: [], completionHandler: nil)
-        playerNode.play()
     }
 
     func playValidClickSound() {
@@ -131,9 +72,9 @@ class SoundManager {
     }
 
     func release() {
-        soundPool?.stop()
-        soundPool = nil
-        playerNodes.removeAll()
-        audioBuffers.removeAll()
+        for player in players.values {
+            player.stop()
+        }
+        players.removeAll()
     }
 }

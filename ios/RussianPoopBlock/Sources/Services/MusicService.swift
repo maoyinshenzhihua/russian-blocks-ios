@@ -12,15 +12,20 @@ class MusicService {
 
     func startMusic() {
         guard GameSettings.shared.musicEnabled else { return }
+
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set audio session: \(error)")
+        }
+
         guard let url = Bundle.main.url(forResource: "game_music", withExtension: "mp3") else {
             print("Music file not found")
             return
         }
 
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
-
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.numberOfLoops = -1
             audioPlayer?.volume = 1.0
