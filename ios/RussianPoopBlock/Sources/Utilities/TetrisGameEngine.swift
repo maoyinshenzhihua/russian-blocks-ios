@@ -66,10 +66,6 @@ class TetrisGameEngine {
 
         SoundManager.shared.initSoundManager(soundEnabled: GameSettings.shared.gameSoundEnabled)
 
-        for soundType in blockSounds {
-            SoundManager.shared.preloadSound(soundType)
-        }
-
         spawnNewBlock()
 
         gameTimer = Timer.scheduledTimer(withTimeInterval: TetrisGameEngine.gameSpeed, repeats: true) { [weak self] _ in
