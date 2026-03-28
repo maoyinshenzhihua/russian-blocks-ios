@@ -8,8 +8,8 @@ class GameViewController: UIViewController {
     private var blockSize: CGFloat = 15
 
     private var gameEngine: TetrisGameEngine!
-    private var gridCells: [[UIView]] = []
-    private var nextBlockCells: [[UIView]] = []
+    private var gridCells: [[UIImageView]] = []
+    private var nextBlockCells: [[UIImageView]] = []
 
     private var highlightedButton: UIButton?
     private var isControllerConnected = false
@@ -165,29 +165,37 @@ class GameViewController: UIViewController {
     }
 
     private func setupGridCells() {
+        gridCells = []
         for row in 0..<gridHeight {
+            var rowCells: [UIImageView] = []
             for col in 0..<gridWidth {
-                let cell = UIView()
+                let cell = UIImageView()
                 cell.backgroundColor = .white
                 cell.frame = CGRect(x: CGFloat(col) * blockSize, y: CGFloat(row) * blockSize, width: blockSize, height: blockSize)
-                cell.layer.borderWidth = 0.5
-                cell.layer.borderColor = UIColor.lightGray.cgColor
+                cell.contentMode = .scaleAspectFill
+                cell.clipsToBounds = true
                 gameGridContainer.addSubview(cell)
+                rowCells.append(cell)
             }
+            gridCells.append(rowCells)
         }
     }
 
     private func setupNextBlockCells() {
+        nextBlockCells = []
         let cellSize: CGFloat = 22
         for row in 0..<4 {
+            var rowCells: [UIImageView] = []
             for col in 0..<4 {
-                let cell = UIView()
+                let cell = UIImageView()
                 cell.backgroundColor = UIColor(hex: "#CCCCCC")
                 cell.frame = CGRect(x: 8 + CGFloat(col) * cellSize, y: 8 + CGFloat(row) * cellSize, width: cellSize, height: cellSize)
-                cell.layer.borderWidth = 0.5
-                cell.layer.borderColor = UIColor.darkGray.cgColor
+                cell.contentMode = .scaleAspectFill
+                cell.clipsToBounds = true
                 nextBlockContainer.addSubview(cell)
+                rowCells.append(cell)
             }
+            nextBlockCells.append(rowCells)
         }
     }
 
@@ -323,40 +331,32 @@ class GameViewController: UIViewController {
     }
 
     private func renderGameGrid() {
-        let colors: [UIColor] = [
-            UIColor(hex: "#FF6B6B"),
-            UIColor(hex: "#4ECDC4"),
-            UIColor(hex: "#45B7D1"),
-            UIColor(hex: "#96CEB4"),
-            UIColor(hex: "#FFEAA7"),
-            UIColor(hex: "#DDA0DD"),
-            UIColor(hex: "#98D8C8")
-        ]
-
         for row in 0..<gridHeight {
             for col in 0..<gridWidth {
                 let cellType = gameEngine.gameGrid[row][col]
-                let index = row * gridWidth + col
-                let cell = gameGridContainer.subviews[index]
+                let cell = gridCells[row][col]
 
                 if cellType == 0 {
+                    cell.image = nil
                     cell.backgroundColor = .white
                 } else {
-                    cell.backgroundColor = colors[cellType - 1]
+                    let iconName = gameEngine.blockIcons[cellType - 1]
+                    cell.image = UIImage(named: iconName)
+                    cell.backgroundColor = .clear
                 }
             }
         }
 
         if let currentBlock = gameEngine.currentBlock {
-            let color = colors[currentBlock.type]
+            let iconName = gameEngine.blockIcons[currentBlock.type]
             for row in 0..<currentBlock.shape.count {
                 for col in 0..<currentBlock.shape[row].count {
                     if currentBlock.shape[row][col] == 1 {
                         let gridX = currentBlock.x + col
                         let gridY = currentBlock.y + row
                         if gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight {
-                            let index = gridY * gridWidth + gridX
-                            gameGridContainer.subviews[index].backgroundColor = color
+                            gridCells[gridY][gridX].image = UIImage(named: iconName)
+                            gridCells[gridY][gridX].backgroundColor = .clear
                         }
                     }
                 }
@@ -365,22 +365,15 @@ class GameViewController: UIViewController {
     }
 
     private func renderNextBlock() {
-        let colors: [UIColor] = [
-            UIColor(hex: "#FF6B6B"),
-            UIColor(hex: "#4ECDC4"),
-            UIColor(hex: "#45B7D1"),
-            UIColor(hex: "#96CEB4"),
-            UIColor(hex: "#FFEAA7"),
-            UIColor(hex: "#DDA0DD"),
-            UIColor(hex: "#98D8C8")
-        ]
-
-        for i in 0..<16 {
-            nextBlockContainer.subviews[i].backgroundColor = UIColor(hex: "#CCCCCC")
+        for row in 0..<4 {
+            for col in 0..<4 {
+                nextBlockCells[row][col].image = nil
+                nextBlockCells[row][col].backgroundColor = UIColor(hex: "#CCCCCC")
+            }
         }
 
         let nextShape = gameEngine.getNextBlockShape()
-        let color = colors[gameEngine.nextBlockType]
+        let iconName = gameEngine.blockIcons[gameEngine.nextBlockType]
 
         let offsets: [(Int, Int)] = [(1, 0), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1), (1, 1)]
         let offset = offsets[gameEngine.nextBlockType]
@@ -391,8 +384,8 @@ class GameViewController: UIViewController {
                     let displayRow = row + offset.0
                     let displayCol = col + offset.1
                     if displayRow >= 0 && displayRow < 4 && displayCol >= 0 && displayCol < 4 {
-                        let index = displayRow * 4 + displayCol
-                        nextBlockContainer.subviews[index].backgroundColor = color
+                        nextBlockCells[displayRow][displayCol].image = UIImage(named: iconName)
+                        nextBlockCells[displayRow][displayCol].backgroundColor = .clear
                     }
                 }
             }
