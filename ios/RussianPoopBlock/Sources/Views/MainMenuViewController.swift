@@ -22,10 +22,10 @@ class MainMenuViewController: UIViewController {
         return stack
     }()
 
-    private lazy var startGameBtn = createMenuButton(title: "开始游戏")
-    private lazy var gameRecordBtn = createMenuButton(title: "游戏记录")
-    private lazy var gameSettingsBtn = createMenuButton(title: "游戏设置")
-    private lazy var aboutBtn = createMenuButton(title: "应用关于")
+    private let startGameBtn = UIButton(type: .system)
+    private let gameRecordBtn = UIButton(type: .system)
+    private let gameSettingsBtn = UIButton(type: .system)
+    private let aboutBtn = UIButton(type: .system)
 
     private let copyrightLabel: UILabel = {
         let label = UILabel()
@@ -66,6 +66,11 @@ class MainMenuViewController: UIViewController {
         view.addSubview(stackView)
         view.addSubview(copyrightLabel)
 
+        setupMenuButton(startGameBtn, title: "开始游戏")
+        setupMenuButton(gameRecordBtn, title: "游戏记录")
+        setupMenuButton(gameSettingsBtn, title: "游戏设置")
+        setupMenuButton(aboutBtn, title: "应用关于")
+
         stackView.addArrangedSubview(startGameBtn)
         stackView.addArrangedSubview(gameRecordBtn)
         stackView.addArrangedSubview(gameSettingsBtn)
@@ -85,8 +90,7 @@ class MainMenuViewController: UIViewController {
         ])
     }
 
-    private func createMenuButton(title: String) -> UIButton {
-        let button = UIButton(type: .system)
+    private func setupMenuButton(_ button: UIButton, title: String) {
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 22)
         button.setTitleColor(.black, for: .normal)
@@ -95,7 +99,6 @@ class MainMenuViewController: UIViewController {
         button.layer.borderWidth = 2
         button.layer.borderColor = UIColor.black.cgColor
         button.heightAnchor.constraint(equalToConstant: 65).isActive = true
-        return button
     }
 
     private func setupActions() {
@@ -103,6 +106,16 @@ class MainMenuViewController: UIViewController {
         gameRecordBtn.addTarget(self, action: #selector(gameRecordTapped), for: .touchUpInside)
         gameSettingsBtn.addTarget(self, action: #selector(gameSettingsTapped), for: .touchUpInside)
         aboutBtn.addTarget(self, action: #selector(aboutTapped), for: .touchUpInside)
+
+        startGameBtn.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+        gameRecordBtn.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+        gameSettingsBtn.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+        aboutBtn.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+
+        startGameBtn.addTarget(self, action: #selector(buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
+        gameRecordBtn.addTarget(self, action: #selector(buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
+        gameSettingsBtn.addTarget(self, action: #selector(buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
+        aboutBtn.addTarget(self, action: #selector(buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
     }
 
     @objc private func startGameTapped() {
@@ -150,20 +163,6 @@ class MainMenuViewController: UIViewController {
             navigationController?.view.layer.add(transition, forKey: "fadeTransition")
         }
         navigationController?.pushViewController(aboutVC, animated: false)
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        addButtonTargets()
-    }
-
-    private func addButtonTargets() {
-        for case let button as UIButton in stackView.arrangedSubviews {
-            button.removeTarget(self, action: #selector(buttonTouchDown(_:)), for: .allEvents)
-            button.removeTarget(self, action: #selector(buttonTouchUp(_:)), for: .allEvents)
-            button.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
-            button.addTarget(self, action: #selector(buttonTouchUp(_:)), for: [.touchUpInside, .touchUpOutside, .touchCancel])
-        }
     }
 
     @objc private func buttonTouchDown(_ sender: UIButton) {
