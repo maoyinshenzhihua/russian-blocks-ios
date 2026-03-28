@@ -31,7 +31,7 @@ class GameViewController: UIViewController {
     private let scoreLabel: UILabel = {
         let label = UILabel()
         label.text = "得分: 0"
-        label.font = UIFont.boldSystemFont(ofSize: 22)
+        label.font = UIFont.boldSystemFont(ofSize: 20)
         label.textColor = .black
         label.textAlignment = .center
         label.backgroundColor = UIColor(hex: "#FFD959")
@@ -42,7 +42,7 @@ class GameViewController: UIViewController {
     private let nextBlockTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "下一个方块"
-        label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.font = UIFont.boldSystemFont(ofSize: 16)
         label.textColor = .black
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -69,7 +69,7 @@ class GameViewController: UIViewController {
 
     private let nextBlockContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(hex: "#FFD959")
+        view.backgroundColor = UIColor(hex: "#CCCCCC")
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -102,45 +102,53 @@ class GameViewController: UIViewController {
     private func calculateBlockSize() {
         let screenWidth = UIScreen.main.bounds.width
         let screenHeight = UIScreen.main.bounds.height
-        let availableWidth = screenWidth * 0.45
-        let availableHeight = screenHeight - 280
+        let availableWidth = screenWidth * 0.48
+        let availableHeight = screenHeight - 320
         let blockByWidth = availableWidth / CGFloat(gridWidth)
         let blockByHeight = availableHeight / CGFloat(gridHeight)
-        blockSize = min(blockByWidth, blockByHeight, 18)
+        blockSize = min(blockByWidth, blockByHeight, 16)
     }
 
     private func setupUI() {
         view.backgroundColor = UIColor(hex: "#FFD959")
 
         view.addSubview(backBtn)
-        view.addSubview(gameGridContainer)
-        view.addSubview(gameInfoContainer)
+
+        let gameAreaStack = UIStackView()
+        gameAreaStack.axis = .horizontal
+        gameAreaStack.spacing = 10
+        gameAreaStack.alignment = .top
+        gameAreaStack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(gameAreaStack)
+
+        gameAreaStack.addArrangedSubview(gameGridContainer)
+        gameAreaStack.addArrangedSubview(gameInfoContainer)
 
         gameInfoContainer.addSubview(scoreLabel)
         gameInfoContainer.addSubview(nextBlockTitleLabel)
         gameInfoContainer.addSubview(nextBlockContainer)
 
-        setupButton(rotateBtn, title: "旋转", fontSize: 18, size: 70)
-        setupButton(leftBtn, title: "左移", fontSize: 18, size: 70)
-        setupButton(rightBtn, title: "右移", fontSize: 18, size: 70)
-        setupButton(downBtn, title: "下移", fontSize: 18, size: 70)
-        setupButton(fastDropBtn, title: "快速下落", fontSize: 20, size: nil)
+        setupButton(rotateBtn, title: "旋转", fontSize: 16)
+        setupButton(leftBtn, title: "左移", fontSize: 16)
+        setupButton(rightBtn, title: "右移", fontSize: 16)
+        setupButton(downBtn, title: "下移", fontSize: 16)
+        setupButton(fastDropBtn, title: "快速下落", fontSize: 18)
 
         let leftRightStack = UIStackView(arrangedSubviews: [leftBtn, rightBtn])
         leftRightStack.axis = .horizontal
-        leftRightStack.spacing = 15
+        leftRightStack.spacing = 10
         leftRightStack.distribution = .fillEqually
         leftRightStack.translatesAutoresizingMaskIntoConstraints = false
 
         let topStack = UIStackView(arrangedSubviews: [rotateBtn, leftRightStack])
         topStack.axis = .horizontal
-        topStack.spacing = 30
+        topStack.spacing = 20
         topStack.alignment = .center
         topStack.translatesAutoresizingMaskIntoConstraints = false
 
         let controlsStack = UIStackView(arrangedSubviews: [topStack, downBtn])
         controlsStack.axis = .vertical
-        controlsStack.spacing = 15
+        controlsStack.spacing = 10
         controlsStack.alignment = .center
         controlsStack.translatesAutoresizingMaskIntoConstraints = false
 
@@ -156,54 +164,55 @@ class GameViewController: UIViewController {
         setupGridCells()
         setupNextBlockCells()
 
-        let gridWidthConstraint = CGFloat(gridWidth) * blockSize
-        let gridHeightConstraint = CGFloat(gridHeight) * blockSize
+        let gridWidthConstraint = CGFloat(gridWidth) * blockSize + 30
+        let gridHeightConstraint = CGFloat(gridHeight) * blockSize + 30
 
         NSLayoutConstraint.activate([
-            backBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
-            backBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
-            backBtn.widthAnchor.constraint(equalToConstant: 120),
-            backBtn.heightAnchor.constraint(equalToConstant: 50),
+            backBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            backBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            backBtn.widthAnchor.constraint(equalToConstant: 100),
+            backBtn.heightAnchor.constraint(equalToConstant: 40),
 
-            gameGridContainer.topAnchor.constraint(equalTo: backBtn.bottomAnchor, constant: 20),
-            gameGridContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            gameGridContainer.widthAnchor.constraint(equalToConstant: gridWidthConstraint + 30),
-            gameGridContainer.heightAnchor.constraint(equalToConstant: gridHeightConstraint + 30),
+            gameAreaStack.topAnchor.constraint(equalTo: backBtn.bottomAnchor, constant: 15),
+            gameAreaStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            gameAreaStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
 
-            gameInfoContainer.topAnchor.constraint(equalTo: backBtn.bottomAnchor, constant: 20),
-            gameInfoContainer.leadingAnchor.constraint(equalTo: gameGridContainer.trailingAnchor, constant: 10),
-            gameInfoContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            gameInfoContainer.heightAnchor.constraint(equalTo: gameGridContainer.heightAnchor),
+            gameGridContainer.widthAnchor.constraint(equalToConstant: gridWidthConstraint),
+            gameGridContainer.heightAnchor.constraint(equalToConstant: gridHeightConstraint),
 
-            scoreLabel.topAnchor.constraint(equalTo: gameInfoContainer.topAnchor, constant: 15),
-            scoreLabel.leadingAnchor.constraint(equalTo: gameInfoContainer.leadingAnchor, constant: 15),
-            scoreLabel.trailingAnchor.constraint(equalTo: gameInfoContainer.trailingAnchor, constant: -15),
+            gameInfoContainer.widthAnchor.constraint(equalToConstant: 130),
 
-            nextBlockTitleLabel.topAnchor.constraint(equalTo: scoreLabel.bottomAnchor, constant: 20),
+            scoreLabel.topAnchor.constraint(equalTo: gameInfoContainer.topAnchor, constant: 10),
+            scoreLabel.leadingAnchor.constraint(equalTo: gameInfoContainer.leadingAnchor, constant: 10),
+            scoreLabel.trailingAnchor.constraint(equalTo: gameInfoContainer.trailingAnchor, constant: -10),
+
+            nextBlockTitleLabel.topAnchor.constraint(equalTo: scoreLabel.bottomAnchor, constant: 15),
             nextBlockTitleLabel.centerXAnchor.constraint(equalTo: gameInfoContainer.centerXAnchor),
 
-            nextBlockContainer.topAnchor.constraint(equalTo: nextBlockTitleLabel.bottomAnchor, constant: 12),
+            nextBlockContainer.topAnchor.constraint(equalTo: nextBlockTitleLabel.bottomAnchor, constant: 8),
             nextBlockContainer.centerXAnchor.constraint(equalTo: gameInfoContainer.centerXAnchor),
-            nextBlockContainer.widthAnchor.constraint(equalToConstant: 100),
-            nextBlockContainer.heightAnchor.constraint(equalToConstant: 100),
+            nextBlockContainer.widthAnchor.constraint(equalToConstant: 88),
+            nextBlockContainer.heightAnchor.constraint(equalToConstant: 88),
 
-            controlsContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            controlsContainer.topAnchor.constraint(equalTo: gameAreaStack.bottomAnchor, constant: 15),
             controlsContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            controlsContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 280),
+            controlsContainer.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, constant: -20),
 
-            controlsStack.topAnchor.constraint(equalTo: controlsContainer.topAnchor, constant: 15),
-            controlsStack.leadingAnchor.constraint(equalTo: controlsContainer.leadingAnchor, constant: 15),
-            controlsStack.trailingAnchor.constraint(equalTo: controlsContainer.trailingAnchor, constant: -15),
-            controlsStack.bottomAnchor.constraint(equalTo: controlsContainer.bottomAnchor, constant: -15),
+            controlsStack.topAnchor.constraint(equalTo: controlsContainer.topAnchor, constant: 10),
+            controlsStack.leadingAnchor.constraint(equalTo: controlsContainer.leadingAnchor, constant: 10),
+            controlsStack.trailingAnchor.constraint(equalTo: controlsContainer.trailingAnchor, constant: -10),
+            controlsStack.bottomAnchor.constraint(equalTo: controlsContainer.bottomAnchor, constant: -10),
 
-            fastDropBtn.topAnchor.constraint(equalTo: controlsContainer.bottomAnchor, constant: 15),
-            fastDropBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
-            fastDropBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
-            fastDropBtn.heightAnchor.constraint(equalToConstant: 60)
+            fastDropBtn.topAnchor.constraint(equalTo: controlsContainer.bottomAnchor, constant: 10),
+            fastDropBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            fastDropBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            fastDropBtn.heightAnchor.constraint(equalToConstant: 50),
+
+            fastDropBtn.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
     }
 
-    private func setupButton(_ button: UIButton, title: String, fontSize: CGFloat, size: CGFloat?) {
+    private func setupButton(_ button: UIButton, title: String, fontSize: CGFloat) {
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: fontSize)
         button.setTitleColor(.black, for: .normal)
@@ -212,10 +221,8 @@ class GameViewController: UIViewController {
         button.layer.borderWidth = 2
         button.layer.borderColor = UIColor.black.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
-        if let size = size {
-            button.widthAnchor.constraint(equalToConstant: size).isActive = true
-            button.heightAnchor.constraint(equalToConstant: size).isActive = true
-        }
+        button.widthAnchor.constraint(equalToConstant: 65).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 65).isActive = true
     }
 
     private func setupGridCells() {
@@ -245,13 +252,14 @@ class GameViewController: UIViewController {
 
     private func setupNextBlockCells() {
         nextBlockCells = []
-        let cellSize: CGFloat = 22
+        let cellSize: CGFloat = 20
+        let padding: CGFloat = 4
         for row in 0..<4 {
             var rowCells: [UIImageView] = []
             for col in 0..<4 {
                 let cell = UIImageView()
                 cell.backgroundColor = UIColor(hex: "#CCCCCC")
-                cell.frame = CGRect(x: CGFloat(col) * cellSize, y: CGFloat(row) * cellSize, width: cellSize, height: cellSize)
+                cell.frame = CGRect(x: padding + CGFloat(col) * cellSize, y: padding + CGFloat(row) * cellSize, width: cellSize, height: cellSize)
                 cell.contentMode = .scaleAspectFill
                 cell.clipsToBounds = true
                 cell.layer.borderWidth = 0.5
@@ -314,12 +322,10 @@ class GameViewController: UIViewController {
 
     @objc private func gamepadDidConnect(_ notification: Notification) {
         guard let controller = notification.object as? GCController else { return }
-
         if !isControllerConnected {
             isControllerConnected = true
             showControllerConnectedDialog()
         }
-
         setupControllerInputs(controller)
     }
 
@@ -341,12 +347,6 @@ class GameViewController: UIViewController {
             }
             gamepad.buttonB.pressedChangedHandler = { [weak self] _, _, pressed in
                 if pressed { self?.fastDropTapped() }
-            }
-            gamepad.buttonX.pressedChangedHandler = { [weak self] _, _, pressed in
-                if pressed { self?.leftTapped() }
-            }
-            gamepad.buttonY.pressedChangedHandler = { [weak self] _, _, pressed in
-                if pressed { self?.rightTapped() }
             }
             gamepad.dpad.left.pressedChangedHandler = { [weak self] _, _, pressed in
                 if pressed { self?.leftTapped() }

@@ -29,7 +29,9 @@ class TetrisGameEngine {
     var gameStartTime: Date?
 
     let blockIcons: [String] = [
-        "egg", "cabbage", "cigarette", "poop_block", "poop_block", "stone", "stone"
+        "BlockImages/egg", "BlockImages/cabbage", "BlockImages/cigarette",
+        "BlockImages/poop_block", "BlockImages/poop_block",
+        "BlockImages/stone", "BlockImages/stone"
     ]
 
     let blockSounds: [SoundManager.SoundType] = [
@@ -170,12 +172,16 @@ class TetrisGameEngine {
     func fastDrop() {
         guard let block = currentBlock, isGameRunning else { return }
 
-        while !checkCollision(x: block.x, y: block.y + 1, shape: block.shape) {
+        var dropCount = 0
+        while !checkCollision(x: block.x, y: currentBlock!.y + 1, shape: block.shape) {
             currentBlock?.y += 1
+            dropCount += 1
+            if dropCount > 100 { break }
         }
 
         fixBlock()
         checkLines()
+        onGameGridUpdated?()
         spawnNewBlock()
     }
 
